@@ -2,7 +2,7 @@ services:
   - type: web
     name: flask-video-generator
     env: python
-    buildCommand: "./build.sh"
+    buildCommand: ./build.sh
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
