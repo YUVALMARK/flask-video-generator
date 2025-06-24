@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -59,14 +58,44 @@
     <p class="text-center text-sm text-gray-300 mb-6">צרו סרטונים מקצועיים בקלות עם הכלים המתקדמים שלנו</p>
     <form id="videoForm" class="space-y-6" action="https://flask-video-generator.onrender.com/create-video" method="POST" enctype="multipart/form-data">
 
-      <!-- 1: תמונות -->
-      <div>
-        <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
-        <div class="drop-zone">
-          <i class="ph ph-upload text-4xl mb-2 block"></i>
-          גרור קבצים לכאן או <label class="underline cursor-pointer"><input type="file" name="images" multiple required hidden>בחר תמונות</label>
-        </div>
-      </div>
+<!-- 1: תמונות -->
+<div>
+  <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
+  <div class="drop-zone">
+    <i class="ph ph-upload text-4xl mb-2 block"></i>
+    גרור קבצים לכאן או 
+    <label class="underline cursor-pointer">
+      <input type="file" id="imagesInput" name="images" multiple accept="image/*" required hidden>
+      בחר תמונות
+    </label>
+  </div>
+  <!-- preview area -->
+  <div id="imagePreview" class="flex flex-wrap justify-center gap-2 mt-4"></div>
+</div>
+
+<!-- JS להצגת התמונות -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("imagesInput");
+    const preview = document.getElementById("imagePreview");
+
+    input.addEventListener("change", () => {
+      preview.innerHTML = "";
+      Array.from(input.files).forEach(file => {
+        if (!file.type.startsWith("image/")) return;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.className = "w-24 h-24 object-cover rounded-xl border border-blue-400";
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  });
+</script>
 
       <!-- 2: מוזיקה -->
       <div>
