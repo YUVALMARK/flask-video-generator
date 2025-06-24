@@ -1,40 +1,187 @@
-<!-- רק את הקטע של התמונות מחליפים בתוך הקובץ index.html שלך -->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>יצירת סרטון לעסק</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web">
+    function setEndingText(text) {
+      document.getElementById('ending_text').value = text;
+    }
+    function clearEndingText() {
+      document.getElementById('ending_text').value = '';
+    }
+    
+    function toggleSentenceOptions() {
+      const section = document.getElementById('sentenceOptions');
+      section.classList.toggle('hidden');
+    }
+    
+    function toggleSentenceOptions() {
+      const section = document.getElementById('sentenceOptions');
+      section.classList.toggle('hidden');
+    }
 
-<!-- 1: תמונות -->
-<div>
-  <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
-  <div class="drop-zone">
-    <i class="ph ph-upload text-4xl mb-2 block"></i>
-    גרור קבצים לכאן או 
-    <label class="underline cursor-pointer">
-      <input type="file" id="imagesInput" name="images" multiple accept="image/*" required hidden>
-      בחר תמונות
-    </label>
-  </div>
-  <!-- preview area -->
-  <div id="imagePreview" class="flex flex-wrap justify-center gap-2 mt-4"></div>
-</div>
-
-<!-- JS להצגת התמונות -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById("imagesInput");
-    const preview = document.getElementById("imagePreview");
-
-    input.addEventListener("change", () => {
-      preview.innerHTML = "";
-      Array.from(input.files).forEach(file => {
-        if (!file.type.startsWith("image/")) return;
-
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.className = "w-24 h-24 object-cover rounded-xl border border-blue-400";
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+    // Highlight selected button
+    document.addEventListener('DOMContentLoaded', () => {
+      const radioButtons = document.querySelectorAll('input[name="sentence_position"]');
+      radioButtons.forEach(radio => {
+        radio.addEventListener('change', () => {
+          document.querySelectorAll('label[for]').forEach(label => {
+            label.classList.remove('ring', 'ring-2', 'ring-white');
+          });
+          radio.parentElement.classList.add('ring', 'ring-2', 'ring-white');
+        });
       });
     });
-  });
-</script>
+    </script>
+  <style>
+    .drop-zone {
+      border: 2px dashed #4f46e5;
+      padding: 30px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+    .drop-zone:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-white font-sans bg-gradient-to-br from-[#2d1e40] via-[#432c74] to-[#1c1b2f]">
+    <div class="w-full max-w-2xl mx-auto p-6 bg-gray-900 bg-opacity-90 rounded-2xl shadow-2xl z-10">
+    <div class="flex justify-center mb-4"><i class="ph ph-video-camera text-5xl text-white"></i></div>
+    <h1 class="text-3xl font-bold text-center mb-2 text-white">ברוכים הבאים ליצירת</h1>
+    <h2 class="text-2xl font-semibold text-center text-blue-400 mb-4">סרטון לעסק שלכם</h2>
+    <p class="text-center text-sm text-gray-300 mb-6">צרו סרטונים מקצועיים בקלות עם הכלים המתקדמים שלנו</p>
+    <form id="videoForm" class="space-y-6" action="https://flask-video-generator.onrender.com/create-video" method="POST" enctype="multipart/form-data">
+
+      <!-- 1: תמונות -->
+      <div>
+        <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
+        <div class="drop-zone">
+          <i class="ph ph-upload text-4xl mb-2 block"></i>
+          גרור קבצים לכאן או <label class="underline cursor-pointer"><input type="file" name="images" multiple required hidden>בחר תמונות</label>
+        </div>
+      </div>
+
+      <!-- 2: מוזיקה -->
+      <div>
+        <h2 class="font-semibold mb-2 text-lg">2. בחירת מוזיקה (לא חובה)</h2>
+        <div class="flex space-x-2 rtl:space-x-reverse">
+          <label class="w-full text-center py-3 rounded-lg bg-gray-800 cursor-pointer hover:bg-gray-700 transition">
+            בחר קובץ<input type="file" name="music" accept="audio/*" hidden>
+          </label>
+          <button type="button" class="w-full text-center py-3 rounded-lg bg-gray-600 hover:bg-gray-500 transition">ללא מוזיקה</button>
+        </div>
+      </div>
+
+      <!-- 3: גודל הסרטון -->
+      <div>
+        <h2 class="font-semibold mb-3 text-lg">3. בחירת גודל סרטון</h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
+            <input type="radio" name="size" value="landscape" class="hidden" required>
+            <i class="ph ph-film-reel text-2xl mb-1"></i>
+            יוטיוב
+          </label>
+          <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
+            <input type="radio" name="size" value="square" class="hidden">
+            <i class="ph ph-instagram-logo text-2xl mb-1"></i>
+            פוסט אינסטגרם
+          </label>
+          <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
+            <input type="radio" name="size" value="story" class="hidden">
+            <i class="ph ph-device-mobile text-2xl mb-1"></i>
+            סטורי לאינסטגרם
+          </label>
+        </div>
+      </div>
+
+      <!-- 4: לוגו -->
+      <div>
+        <h2 class="font-semibold mb-2 text-lg">4. העלאת לוגו (לא חובה)</h2>
+        <label class="block w-full text-center py-3 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer">
+          העלה לוגו <input type="file" name="logo" accept="image/*" hidden>
+        </label>
+      </div>
+
+            <!-- 5: משפט -->
+      <div>
+        <h2 class="font-semibold mb-3 text-lg">5. משפט להוספה (לא חובה)</h2>
+        <button type="button" onclick="toggleSentenceOptions()" class="px-4 py-2 rounded-full bg-pink-600 hover:bg-pink-700 mb-3">הוסף משפט</button>
+        <div id="sentenceOptions" class="hidden">
+          <div class="flex flex-wrap gap-2 mb-3">
+            <label for="sentence_end" class="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 cursor-pointer">
+              <input type="radio" id="sentence_end" name="sentence_position" value="end" class="hidden"> סוף
+            </label>
+            <label for="sentence_start" class="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 cursor-pointer">
+              <input type="radio" id="sentence_start" name="sentence_position" value="start" class="hidden"> התחלה
+            </label>
+          </div>
+          <textarea name="ending_text" id="ending_text" rows="3" placeholder="הכנס את המשפט..." class="w-full p-3 rounded-lg bg-gray-800 text-white focus:outline-none"></textarea>
+        </div>
+      </div>
+
+
+      <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-bold transition">תצוגה מקדימה ויצירה</button>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <!-- Modal removed because form submits directly -->
+<!--
+    <div class="bg-gray-800 p-6 rounded-xl text-center max-w-md w-full space-y-4 shadow-2xl">
+      <h2 class="text-2xl font-bold">סיום</h2>
+      <p class="text-sm text-gray-300">בחרו כיצד להמשיך:</p>
+      <div class="space-y-2">
+        <button onclick="submitForm()" class="w-full py-2 bg-green-600 hover:bg-green-700 rounded font-semibold">✔ אישור ויצירת סרטון</button>
+        <button onclick="closeModal()" class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded font-semibold">↩ חזרה לתיקון</button>
+        <button onclick="showPreview()" class="w-full py-2 bg-gray-500 hover:bg-gray-600 rounded font-semibold">👁 הצג שוב</button>
+      </div>
+    </div>
+  </div>-->
+
+  <script>
+        function closeModal() {
+      document.getElementById('confirmationModal').classList.add('hidden');
+    }
+    function showPreview() {
+      alert("תצוגה מקדימה תתווסף בהמשך ✨");
+    }
+    
+  
+    function setEndingText(text) {
+      document.getElementById('ending_text').value = text;
+    }
+    function clearEndingText() {
+      document.getElementById('ending_text').value = '';
+    }
+    
+    function toggleSentenceOptions() {
+      const section = document.getElementById('sentenceOptions');
+      section.classList.toggle('hidden');
+    }
+    
+    function toggleSentenceOptions() {
+      const section = document.getElementById('sentenceOptions');
+      section.classList.toggle('hidden');
+    }
+
+    // Highlight selected button
+    document.addEventListener('DOMContentLoaded', () => {
+      const radioButtons = document.querySelectorAll('input[name="sentence_position"]');
+      radioButtons.forEach(radio => {
+        radio.addEventListener('change', () => {
+          document.querySelectorAll('label[for]').forEach(label => {
+            label.classList.remove('ring', 'ring-2', 'ring-white');
+          });
+          radio.parentElement.classList.add('ring', 'ring-2', 'ring-white');
+        });
+      });
+    });
+    </script>
+</body>
+</html>
