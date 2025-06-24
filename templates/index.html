@@ -6,140 +6,98 @@
   <title>יצירת סרטון לעסק</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <style>
-    .drop-zone {
-      border: 2px dashed #4f46e5;
-      padding: 30px;
-      background-color: rgba(255,255,255,0.05);
-      border-radius: 1rem;
-      text-align: center;
-      transition: background 0.3s ease;
-    }
-    .drop-zone:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-    .preview-img {
-      max-width: 100px;
-      margin: 5px;
-      border-radius: 0.5rem;
-    }
-  </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center text-white font-sans bg-gradient-to-br from-[#2d1e40] via-[#432c74] to-[#1c1b2f]">
-<div class="w-full max-w-2xl mx-auto p-6 bg-gray-900 bg-opacity-90 rounded-2xl shadow-2xl z-10">
-  <div class="flex justify-center mb-4"><i class="ph ph-video-camera text-5xl text-white"></i></div>
-  <h1 class="text-3xl font-bold text-center mb-2">ברוכים הבאים ליצירת</h1>
-  <h2 class="text-2xl font-semibold text-center text-blue-400 mb-4">סרטון לעסק שלכם</h2>
-  <form id="videoForm" class="space-y-6" action="/create-video" method="POST" enctype="multipart/form-data">
+<body class="min-h-screen bg-gray-900 text-white flex justify-center items-center px-4 py-6">
+
+  <form id="videoForm" action="/create-video" method="POST" enctype="multipart/form-data" class="w-full max-w-2xl bg-gray-800 p-6 rounded-lg space-y-6">
+
+    <h1 class="text-3xl font-bold text-center">ברוכים הבאים ליצירת סרטון לעסק שלכם</h1>
+    <p class="text-center text-sm text-gray-400">העלו תמונות, בחרו מוזיקה, טקסט וגודל – וקבלו סרטון אוטומטי!</p>
 
     <!-- תמונות -->
     <div>
-      <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
-      <div class="drop-zone">
-        <i class="ph ph-upload text-4xl mb-2 block"></i>
-        גרור קבצים לכאן או <label class="underline cursor-pointer"><input type="file" name="images" id="images" multiple required hidden onchange="previewImages()">בחר תמונות</label>
-      </div>
-      <div id="imagesPreview" class="flex flex-wrap mt-2"></div>
+      <label class="block text-lg font-semibold mb-1">תמונות (עד 10)</label>
+      <input type="file" name="images" id="imageInput" multiple accept="image/*" required class="w-full bg-gray-700 rounded px-3 py-2">
+      <div id="preview" class="grid grid-cols-3 gap-2 mt-3"></div>
     </div>
 
     <!-- מוזיקה -->
     <div>
-      <h2 class="font-semibold mb-2 text-lg">2. מוזיקה (לא חובה)</h2>
-      <label class="block w-full text-center py-3 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer">
-        בחר קובץ<input type="file" name="music" id="music" accept="audio/*" hidden onchange="showFileName(this, 'musicName')">
-      </label>
-      <p id="musicName" class="text-sm mt-1 text-center text-green-300"></p>
+      <label class="block text-lg font-semibold mb-1">מוזיקה (לא חובה)</label>
+      <input type="file" name="music" id="musicInput" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <p id="musicName" class="text-sm mt-2 text-gray-300">לא נבחר קובץ</p>
     </div>
 
-    <!-- גודל הסרטון -->
+    <!-- גודל -->
     <div>
-      <h2 class="font-semibold mb-3 text-lg">3. גודל סרטון</h2>
-      <div class="grid grid-cols-3 gap-4 text-center">
-        <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
-          <input type="radio" name="size" value="landscape" class="hidden" required onchange="highlight(this)">
-          <i class="ph ph-film-reel text-2xl mb-1"></i>
-          יוטיוב
-        </label>
-        <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
-          <input type="radio" name="size" value="square" class="hidden" onchange="highlight(this)">
-          <i class="ph ph-instagram-logo text-2xl mb-1"></i>
-          פוסט אינסטגרם
-        </label>
-        <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex flex-col items-center">
-          <input type="radio" name="size" value="story" class="hidden" onchange="highlight(this)">
-          <i class="ph ph-device-mobile text-2xl mb-1"></i>
-          סטורי
-        </label>
-      </div>
+      <label class="block text-lg font-semibold mb-1">גודל הסרטון</label>
+      <select name="size" id="sizeSelect" required class="w-full bg-gray-700 rounded px-3 py-2">
+        <option value="landscape">יוטיוב</option>
+        <option value="square">פוסט אינסטגרם</option>
+        <option value="story">סטורי</option>
+      </select>
     </div>
 
     <!-- לוגו -->
     <div>
-      <h2 class="font-semibold mb-2 text-lg">4. העלאת לוגו (לא חובה)</h2>
-      <label class="block w-full text-center py-3 bg-gray-800 hover:bg-gray-700 rounded-lg cursor-pointer">
-        העלה לוגו <input type="file" name="logo" id="logo" accept="image/*" hidden onchange="previewLogo()">
-      </label>
-      <div id="logoPreview" class="mt-2 text-center"></div>
+      <label class="block text-lg font-semibold mb-1">לוגו (לא חובה)</label>
+      <input type="file" name="logo" id="logoInput" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <div id="logoPreview" class="flex justify-center mt-2"></div>
     </div>
 
     <!-- משפט -->
     <div>
-      <h2 class="font-semibold mb-2 text-lg">5. משפט סיום (לא חובה)</h2>
-      <textarea name="ending_text" rows="3" placeholder="משפט שיופיע בסוף..." class="w-full p-3 rounded-lg bg-gray-800 text-white focus:outline-none"></textarea>
+      <label class="block text-lg font-semibold mb-1">משפט סיום (לא חובה)</label>
+      <textarea name="ending_text" rows="3" class="w-full bg-gray-700 rounded px-3 py-2" placeholder="הכניסו משפט שתרצו שיופיע בסוף הסרטון..."></textarea>
     </div>
 
-    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-bold transition">צור סרטון</button>
+    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded text-lg font-bold">צור סרטון</button>
   </form>
-</div>
 
-<script>
-  function previewImages() {
-    const input = document.getElementById('images');
-    const preview = document.getElementById('imagesPreview');
-    preview.innerHTML = '';
-    Array.from(input.files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.className = 'preview-img';
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
+  <script>
+    // תצוגת תמונות
+    document.getElementById('imageInput').addEventListener('change', function () {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+      Array.from(this.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = "w-full h-28 object-cover rounded shadow";
+          preview.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+      });
     });
-  }
 
-  function previewLogo() {
-    const input = document.getElementById('logo');
-    const preview = document.getElementById('logoPreview');
-    preview.innerHTML = '';
-    if (input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.className = 'preview-img inline-block';
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  function showFileName(input, targetId) {
-    const target = document.getElementById(targetId);
-    if (input.files.length > 0) {
-      target.innerText = `נבחר: ${input.files[0].name}`;
-    } else {
-      target.innerText = '';
-    }
-  }
-
-  function highlight(selectedRadio) {
-    document.querySelectorAll('input[name="size"]').forEach(radio => {
-      radio.parentElement.classList.remove('ring', 'ring-white');
+    // הצגת שם קובץ מוזיקה
+    document.getElementById('musicInput').addEventListener('change', function () {
+      const musicName = document.getElementById('musicName');
+      musicName.textContent = this.files.length > 0 ? this.files[0].name : "לא נבחר קובץ";
     });
-    selectedRadio.parentElement.classList.add('ring', 'ring-2', 'ring-white');
-  }
-</script>
+
+    // תצוגת לוגו
+    document.getElementById('logoInput').addEventListener('change', function () {
+      const preview = document.getElementById('logoPreview');
+      preview.innerHTML = '';
+      if (this.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = "w-24 h-24 object-contain rounded shadow";
+          preview.appendChild(img);
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    // הדגשת הבחירה בגודל הסרטון
+    document.getElementById('sizeSelect').addEventListener('change', function () {
+      const select = this;
+      select.classList.add('ring', 'ring-2', 'ring-white');
+    });
+  </script>
 </body>
 </html>
