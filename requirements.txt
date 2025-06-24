@@ -9,7 +9,7 @@ imageio-ffmpeg==0.6.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
-moviepy==2.2.1
+moviepy==1.0.3
 numpy==2.2.6
 pillow==11.2.1
 proglog==0.1.12
