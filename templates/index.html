@@ -58,14 +58,17 @@
     <p class="text-center text-sm text-gray-300 mb-6">צרו סרטונים מקצועיים בקלות עם הכלים המתקדמים שלנו</p>
     <form id="videoForm" class="space-y-6" action="https://flask-video-generator.onrender.com/create-video" method="POST" enctype="multipart/form-data">
 
-      <!-- 1: תמונות -->
-      <div>
-        <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
-        <div class="drop-zone">
-          <i class="ph ph-upload text-4xl mb-2 block"></i>
-          גרור קבצים לכאן או <label class="underline cursor-pointer"><input type="file" name="images" multiple required hidden>בחר תמונות</label>
-        </div>
-      </div>
+  <!-- 1: תמונות -->
+<div>
+  <h2 class="font-semibold mb-2 text-lg">1. העלאת תמונות (עד 10)</h2>
+  <div class="drop-zone">
+    <i class="ph ph-upload text-4xl mb-2 block"></i>
+    גרור קבצים לכאן או 
+    <input type="file" id="images" name="images" multiple required hidden>
+    <label for="images" class="underline cursor-pointer">בחר תמונות</label>
+  </div>
+</div>
+
 
       <!-- 2: מוזיקה -->
       <div>
