@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -6,52 +5,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>יצירת סרטון לעסק</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body class="min-h-screen bg-gray-900 text-white flex justify-center items-center px-4 py-6">
 
   <form id="videoForm" action="/create-video" method="POST" enctype="multipart/form-data" class="w-full max-w-2xl bg-gray-800 p-6 rounded-lg space-y-6">
 
-    <h1 class="text-3xl font-bold text-center">ברוכים הבאים ליצירת סרטון לעסק שלכם</h1>
-    <p class="text-center text-sm text-gray-400">העלו תמונות, בחרו מוזיקה, טקסט וגודל – וקבלו סרטון אוטומטי!</p>
+    <div class="text-center">
+      <i class="ph ph-video-camera text-4xl"></i>
+      <h1 class="text-3xl font-bold mt-2">ברוכים הבאים ליצירת <span class="text-blue-400">סרטון לעסק שלכם</span></h1>
+      <p class="text-sm text-gray-400 mt-1">צרו סרטונים מקצועיים בקלות עם הכלים המתקדמים שלנו</p>
+    </div>
 
     <!-- תמונות -->
     <div>
-      <label class="block text-lg font-semibold mb-1">תמונות (עד 10)</label>
+      <label class="block text-lg font-semibold mb-1">1. העלאת תמונות (עד 10)</label>
       <input type="file" name="images" id="imageInput" multiple accept="image/*" required class="w-full bg-gray-700 rounded px-3 py-2">
       <div id="preview" class="grid grid-cols-3 gap-2 mt-3"></div>
     </div>
 
     <!-- מוזיקה -->
     <div>
-      <label class="block text-lg font-semibold mb-1">מוזיקה (לא חובה)</label>
-      <input type="file" name="music" id="musicInput" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2">
-      <div id="musicName" class="text-sm text-gray-300 mt-1"></div>
+      <label class="block text-lg font-semibold mb-1">2. בחירת מוזיקה (לא חובה)</label>
+      <div class="flex gap-2">
+        <label class="flex-1">
+          <input type="radio" name="music_choice" value="none" checked class="hidden peer">
+          <div class="bg-gray-700 peer-checked:ring-2 ring-white text-center rounded py-2">ללא מוזיקה</div>
+        </label>
+        <label class="flex-1">
+          <input type="radio" name="music_choice" value="upload" class="hidden peer">
+          <div class="bg-gray-700 peer-checked:ring-2 ring-white text-center rounded py-2">בחר קובץ</div>
+        </label>
+      </div>
+      <input type="file" name="music" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2 mt-2">
     </div>
 
     <!-- גודל -->
     <div>
-      <label class="block text-lg font-semibold mb-1">גודל הסרטון</label>
-      <select name="size" id="sizeSelect" required class="w-full bg-gray-700 rounded px-3 py-2">
-        <option value="landscape">יוטיוב</option>
-        <option value="square">פוסט אינסטגרם</option>
-        <option value="story">סטורי</option>
-      </select>
+      <label class="block text-lg font-semibold mb-1">3. בחירת גודל סרטון</label>
+      <div class="grid grid-cols-3 gap-2">
+        <label>
+          <input type="radio" name="size" value="story" class="hidden peer" required>
+          <div class="bg-gray-700 peer-checked:ring-2 ring-white rounded p-3 flex flex-col items-center">
+            <i class="ph ph-device-mobile text-2xl"></i>
+            סטורי לאינסטגרם
+          </div>
+        </label>
+        <label>
+          <input type="radio" name="size" value="square" class="hidden peer">
+          <div class="bg-gray-700 peer-checked:ring-2 ring-white rounded p-3 flex flex-col items-center">
+            <i class="ph ph-instagram-logo text-2xl"></i>
+            פוסט אינסטגרם
+          </div>
+        </label>
+        <label>
+          <input type="radio" name="size" value="landscape" class="hidden peer">
+          <div class="bg-gray-700 peer-checked:ring-2 ring-white rounded p-3 flex flex-col items-center">
+            <i class="ph ph-youtube-logo text-2xl"></i>
+            יוטיוב
+          </div>
+        </label>
+      </div>
     </div>
 
     <!-- לוגו -->
     <div>
-      <label class="block text-lg font-semibold mb-1">לוגו (לא חובה)</label>
-      <input type="file" name="logo" id="logoInput" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <label class="block text-lg font-semibold mb-1">4. העלאת לוגו (לא חובה)</label>
+      <input type="file" name="logo" accept="image/*" id="logoInput" class="w-full bg-gray-700 rounded px-3 py-2">
       <div id="logoPreview" class="mt-2"></div>
     </div>
 
-    <!-- משפט -->
+    <!-- משפט סיום -->
     <div>
-      <label class="block text-lg font-semibold mb-1">משפט סיום (לא חובה)</label>
-      <textarea name="ending_text" rows="3" class="w-full bg-gray-700 rounded px-3 py-2" placeholder="הכניסו משפט שתרצו שיופיע בסוף הסרטון..."></textarea>
+      <label class="block text-lg font-semibold mb-1">5. משפט להוספה (לא חובה)</label>
+      <textarea name="ending_text" rows="3" class="w-full bg-gray-700 rounded px-3 py-2" placeholder="משפט סיום שיופיע בסוף הסרטון..."></textarea>
     </div>
 
-    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded text-lg font-bold">צור סרטון</button>
+    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded text-lg font-bold">תצוגה מקדימה ויצירה</button>
   </form>
 
   <script>
@@ -70,25 +100,21 @@
       });
     });
 
-    document.getElementById('musicInput').addEventListener('change', function () {
-      const musicName = document.getElementById('musicName');
-      musicName.textContent = this.files.length ? "נבחר: " + this.files[0].name : "";
-    });
-
     document.getElementById('logoInput').addEventListener('change', function () {
       const logoPreview = document.getElementById('logoPreview');
       logoPreview.innerHTML = '';
-      if (this.files.length) {
+      if (this.files.length > 0) {
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = document.createElement('img');
           img.src = e.target.result;
-          img.className = "h-16 object-contain mt-2";
+          img.className = "w-20 h-20 object-contain mt-2 mx-auto";
           logoPreview.appendChild(img);
-        };
+        }
         reader.readAsDataURL(this.files[0]);
       }
     });
   </script>
+
 </body>
 </html>
