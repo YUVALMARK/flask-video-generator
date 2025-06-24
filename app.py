@@ -1,14 +1,20 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import os
 from generate import generate_video
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 CORS(app)
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# ✅ דף הבית – יציג index.html מהתיקייה templates
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+# ✅ יצירת סרטון
 @app.route('/create-video', methods=['POST'])
 def create_video_route():
     if 'images' not in request.files:
