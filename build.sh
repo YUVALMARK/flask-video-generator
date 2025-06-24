@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-pip install --upgrade pip
+echo "🔥 build.sh is running!"
 pip install -r requirements.txt
