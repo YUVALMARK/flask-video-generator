@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -5,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>יצירת סרטון לעסק</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body class="min-h-screen bg-gray-900 text-white flex justify-center items-center px-4 py-6">
 
@@ -25,7 +25,7 @@
     <div>
       <label class="block text-lg font-semibold mb-1">מוזיקה (לא חובה)</label>
       <input type="file" name="music" id="musicInput" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2">
-      <p id="musicName" class="text-sm mt-2 text-gray-300">לא נבחר קובץ</p>
+      <div id="musicName" class="text-sm text-gray-300 mt-1"></div>
     </div>
 
     <!-- גודל -->
@@ -42,7 +42,7 @@
     <div>
       <label class="block text-lg font-semibold mb-1">לוגו (לא חובה)</label>
       <input type="file" name="logo" id="logoInput" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
-      <div id="logoPreview" class="flex justify-center mt-2"></div>
+      <div id="logoPreview" class="mt-2"></div>
     </div>
 
     <!-- משפט -->
@@ -55,7 +55,6 @@
   </form>
 
   <script>
-    // תצוגת תמונות
     document.getElementById('imageInput').addEventListener('change', function () {
       const preview = document.getElementById('preview');
       preview.innerHTML = '';
@@ -71,32 +70,24 @@
       });
     });
 
-    // הצגת שם קובץ מוזיקה
     document.getElementById('musicInput').addEventListener('change', function () {
       const musicName = document.getElementById('musicName');
-      musicName.textContent = this.files.length > 0 ? this.files[0].name : "לא נבחר קובץ";
+      musicName.textContent = this.files.length ? "נבחר: " + this.files[0].name : "";
     });
 
-    // תצוגת לוגו
     document.getElementById('logoInput').addEventListener('change', function () {
-      const preview = document.getElementById('logoPreview');
-      preview.innerHTML = '';
-      if (this.files.length > 0) {
+      const logoPreview = document.getElementById('logoPreview');
+      logoPreview.innerHTML = '';
+      if (this.files.length) {
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = document.createElement('img');
           img.src = e.target.result;
-          img.className = "w-24 h-24 object-contain rounded shadow";
-          preview.appendChild(img);
-        }
+          img.className = "h-16 object-contain mt-2";
+          logoPreview.appendChild(img);
+        };
         reader.readAsDataURL(this.files[0]);
       }
-    });
-
-    // הדגשת הבחירה בגודל הסרטון
-    document.getElementById('sizeSelect').addEventListener('change', function () {
-      const select = this;
-      select.classList.add('ring', 'ring-2', 'ring-white');
     });
   </script>
 </body>
