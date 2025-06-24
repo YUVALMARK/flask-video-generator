@@ -1,7 +1,8 @@
 import os
 import uuid
-from moviepy.editor import *
-from moviepy.video.fx import resize, blur
+from moviepy.editor import (
+    ImageClip, ColorClip, TextClip, CompositeVideoClip, concatenate_videoclips, AudioFileClip
+)
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
     output_filename = f"output_{uuid.uuid4().hex}.mp4"
@@ -9,21 +10,18 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
 
     final_clips = []
     for img in images:
-        # Load image and create both background (blurred) and foreground (focused)
         base_clip = ImageClip(img).resize(height=1080 if size == 'story' else 720)
         blurred_bg = (base_clip
                       .resize(scale=1.2)
-                      .fx(blur.blur, 10)
+                      .fx(blur, 10)
                       .set_duration(2))
-        matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0), ismask=False).set_opacity(0.2).set_duration(2)
+        matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0)).set_opacity(0.2).set_duration(2)
 
-        # Focused image in center with slight shadow (using margin)
         focused = (base_clip
                    .set_duration(2)
                    .margin(20, color=(0, 0, 0))
                    .set_position("center"))
 
-        # Composite video: blurred bg + matte overlay + focused image
         composed = CompositeVideoClip([blurred_bg, matte_layer, focused])
         composed = composed.fadein(0.5).fadeout(0.5)
         final_clips.append(composed)
