@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>יצירת סרטון לעסק</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body class="min-h-screen bg-gray-900 text-white flex justify-center items-center px-4 py-6">
 
@@ -24,39 +23,47 @@
     <!-- מוזיקה -->
     <div>
       <label class="block text-lg font-semibold mb-1">מוזיקה (לא חובה)</label>
-      <input type="file" name="music" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <input type="file" name="music" id="musicInput" accept="audio/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <p id="musicName" class="text-sm text-green-400 mt-1"></p>
     </div>
 
     <!-- גודל -->
     <div>
       <label class="block text-lg font-semibold mb-1">גודל הסרטון</label>
-      <select name="size" required class="w-full bg-gray-700 rounded px-3 py-2">
-        <option value="landscape">יוטיוב</option>
-        <option value="square">פוסט אינסטגרם</option>
-        <option value="story">סטורי</option>
-      </select>
+      <div class="flex justify-between space-x-2 rtl:space-x-reverse">
+        <label class="option w-full text-center py-2 rounded bg-gray-700 cursor-pointer">
+          <input type="radio" name="size" value="landscape" class="hidden"> יוטיוב
+        </label>
+        <label class="option w-full text-center py-2 rounded bg-gray-700 cursor-pointer">
+          <input type="radio" name="size" value="square" class="hidden"> פוסט אינסטגרם
+        </label>
+        <label class="option w-full text-center py-2 rounded bg-gray-700 cursor-pointer">
+          <input type="radio" name="size" value="story" class="hidden"> סטורי
+        </label>
+      </div>
     </div>
 
     <!-- לוגו -->
     <div>
       <label class="block text-lg font-semibold mb-1">לוגו (לא חובה)</label>
-      <input type="file" name="logo" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <input type="file" name="logo" id="logoInput" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
+      <div id="logoPreview" class="mt-2"></div>
     </div>
 
     <!-- משפט -->
     <div>
       <label class="block text-lg font-semibold mb-1">משפט סיום (לא חובה)</label>
-      <textarea name="ending_text" rows="3" class="w-full bg-gray-700 rounded px-3 py-2" placeholder="הכניסו משפט שתרצו שיופיע בסוף הסרטון..."></textarea>
+      <textarea name="ending_text" rows="3" class="w-full bg-gray-700 rounded px-3 py-2" placeholder="הכניסו משפט..."></textarea>
     </div>
 
-    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded text-lg font-bold">צור סרטון</button>
+    <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 py-3 rounded text-lg font-bold">צור סרטון</button>
   </form>
 
   <script>
+    // הצגת תמונות
     document.getElementById('imageInput').addEventListener('change', function () {
       const preview = document.getElementById('preview');
       preview.innerHTML = '';
-
       Array.from(this.files).forEach(file => {
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -67,6 +74,36 @@
         }
         reader.readAsDataURL(file);
       });
+    });
+
+    // הצגת שם קובץ מוזיקה
+    document.getElementById('musicInput').addEventListener('change', function () {
+      const musicName = document.getElementById('musicName');
+      musicName.textContent = this.files.length ? this.files[0].name : '';
+    });
+
+    // הדגשת גודל סרטון
+    document.querySelectorAll('input[name=\"size\"]').forEach(input => {
+      input.addEventListener('change', () => {
+        document.querySelectorAll('.option').forEach(opt => opt.classList.remove('ring', 'ring-2', 'ring-white'));
+        input.parentElement.classList.add('ring', 'ring-2', 'ring-white');
+      });
+    });
+
+    // תצוגת לוגו
+    document.getElementById('logoInput').addEventListener('change', function () {
+      const preview = document.getElementById('logoPreview');
+      preview.innerHTML = '';
+      if (this.files.length) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = "w-20 h-20 object-contain rounded-full border mt-2";
+          preview.appendChild(img);
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
     });
   </script>
 </body>
