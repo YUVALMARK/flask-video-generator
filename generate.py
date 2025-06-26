@@ -14,7 +14,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
     for img in images:
         base_clip = ImageClip(img).resize(height=1080 if size == 'story' else 720)
         blurred_bg = (base_clip
-                      .resize(scale=1.2)
+                      .resize(1.2)
                       .fx(blur, 10)
                       .set_duration(2))
         matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0)).set_opacity(0.2).set_duration(2)
