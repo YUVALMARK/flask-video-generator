@@ -9,6 +9,9 @@ CORS(app)
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# ✅ יוודא שהתיקייה קיימת גם אם היא לא קיימת ברינדור
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # ✅ דף הבית – יציג index.html מהתיקייה templates
 @app.route('/')
 def index():
