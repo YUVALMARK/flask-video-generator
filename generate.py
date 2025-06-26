@@ -6,6 +6,8 @@ Image.ANTIALIAS = Image.Resampling.LANCZOS  # ✅ תיקון לבעיה
 from moviepy.editor import (
     ImageClip, ColorClip, TextClip, CompositeVideoClip, concatenate_videoclips, AudioFileClip
 )
+from moviepy.video.fx.all import blur  # ✅ ייבוא אפקט
+
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
     output_filename = f"output_{uuid.uuid4().hex}.mp4"
     output_path = os.path.join('static', 'uploads', output_filename)
