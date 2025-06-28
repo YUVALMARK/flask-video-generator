@@ -1,11 +1,10 @@
 import os
 import uuid
-import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image  # ✅ ייבוא נכון
+Image.ANTIALIAS = Image.Resampling.LANCZOS  # ✅ תיקון לבעיה
 
 from moviepy.editor import (
-    ImageClip, ColorClip, TextClip, CompositeVideoClip,
-    concatenate_videoclips, AudioFileClip
+    ImageClip, ColorClip, TextClip, CompositeVideoClip, concatenate_videoclips, AudioFileClip
 )
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
@@ -14,18 +13,11 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
 
     final_clips = []
     for img in images:
-        # טעינה של התמונה כ־PIL לטשטוש
-        pil_img = Image.open(img)
-        blurred_pil = pil_img.filter(ImageFilter.GaussianBlur(10))
-        blurred_np = np.array(blurred_pil)
-
-        # רקע מטושטש
-        blurred_bg = (ImageClip(blurred_np)
-                      .resize(1.2)
-                      .set_duration(2))
-
-        # הקדמה ממוזערת לתמונה המקורית
         base_clip = ImageClip(img).resize(height=1080 if size == 'story' else 720)
+        blurred_bg = (base_clip
+                      .resize(1.2)
+                      .fx(blur, 10)
+                      .set_duration(2))
         matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0)).set_opacity(0.2).set_duration(2)
 
         focused = (base_clip
