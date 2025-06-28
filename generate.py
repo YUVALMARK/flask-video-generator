@@ -4,9 +4,6 @@ import uuid
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size="square"):
-    output_dir = "static/uploads"
-    os.makedirs(output_dir, exist_ok=True)
-
     # 🧱 הגדרות גודל
     sizes = {
         "square": (720, 720),
@@ -19,31 +16,29 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
     for i, image_path in enumerate(images):
         img = Image.open(image_path).convert("RGB")
         img = img.resize((width, height))
-        filename = f"frame_{i}.png"
-        new_path = os.path.join(output_dir, filename)
-        img.save(new_path)
-        resized_images.append(filename)  # רק השם, לא כל הנתיב
+        img.save(image_path)  # שומר מעל המקורי
+        resized_images.append(os.path.abspath(image_path))  # נתיב מלא
 
     # 🧾 יצירת קובץ inputs.txt
+    output_dir = os.path.dirname(resized_images[0]) if resized_images else "static/uploads"
     concat_file = os.path.join(output_dir, "inputs.txt")
     with open(concat_file, "w") as f:
-    for filename in resized_images:
-        full_path = os.path.abspath(os.path.join(output_dir, filename))
-        f.write(f"file '{full_path}'\n")
-        f.write("duration 2\n")
+        for img in resized_images:
+            f.write(f"file '{img}'\n")
+            f.write("duration 2\n")
 
-    # ➕ יצירת טקסט סיום כתמונה
+    # ➕ יצירת טקסט סיום כתמונה (אם יש טקסט סיום)
     if ending_text:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 60)
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        font = ImageFont.truetype(font_path, 60)
         img = Image.new('RGB', (width, height), color="white")
         draw = ImageDraw.Draw(img)
         w, h = draw.textsize(ending_text, font=font)
         draw.text(((width - w) / 2, (height - h) / 2), ending_text, fill="black", font=font)
-        ending_filename = "ending.png"
-        ending_path = os.path.join(output_dir, ending_filename)
+        ending_path = os.path.join(output_dir, "ending.png")
         img.save(ending_path)
         with open(concat_file, "a") as f:
-            f.write(f"file '{ending_path}'\n")
+            f.write(f"file '{os.path.abspath(ending_path)}'\n")
             f.write("duration 2\n")
 
     # 🖼️ יצירת וידאו מהתמונות
