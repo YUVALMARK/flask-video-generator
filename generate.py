@@ -1,11 +1,16 @@
 import os
 import uuid
-from PIL import Image  # ✅ ייבוא נכון
-Image.ANTIALIAS = Image.Resampling.LANCZOS  # ✅ תיקון לבעיה
-
+from PIL import Image, ImageFilter
 from moviepy.editor import (
-    ImageClip, ColorClip, TextClip, CompositeVideoClip, concatenate_videoclips, AudioFileClip
+    ImageClip, ColorClip, TextClip, CompositeVideoClip,
+    concatenate_videoclips, AudioFileClip
 )
+
+# ✅ פונקציית טשטוש מותאמת (blur)
+def blur(get_frame, radius=10):
+    def fl(image):
+        return Image.fromarray(image).filter(ImageFilter.GaussianBlur(radius))
+    return lambda t: fl(get_frame(t))
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
     output_filename = f"output_{uuid.uuid4().hex}.mp4"
@@ -16,7 +21,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         base_clip = ImageClip(img).resize(height=1080 if size == 'story' else 720)
         blurred_bg = (base_clip
                       .resize(1.2)
-                      .fx(blur, 10)
+                      .fl(blur(base_clip.get_frame, 10))  # ✅ טשטוש
                       .set_duration(2))
         matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0)).set_opacity(0.2).set_duration(2)
 
