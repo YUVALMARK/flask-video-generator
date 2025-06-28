@@ -4,6 +4,9 @@ import uuid
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size="square"):
+    output_dir = "static/uploads"
+    os.makedirs(output_dir, exist_ok=True)
+
     # 🧱 הגדרות גודל
     sizes = {
         "square": (720, 720),
@@ -16,18 +19,18 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
     for i, image_path in enumerate(images):
         img = Image.open(image_path).convert("RGB")
         img = img.resize((width, height))
-        img.save(image_path)  # שומר מעל המקורי
-        resized_images.append(os.path.abspath(image_path))  # נתיב מלא
+        new_path = os.path.join(output_dir, f"frame_{i}.png")
+        img.save(new_path)
+        resized_images.append(new_path)
 
     # 🧾 יצירת קובץ inputs.txt
-    output_dir = os.path.dirname(resized_images[0]) if resized_images else "static/uploads"
     concat_file = os.path.join(output_dir, "inputs.txt")
     with open(concat_file, "w") as f:
         for img in resized_images:
             f.write(f"file '{img}'\n")
             f.write("duration 2\n")
 
-    # ➕ יצירת טקסט סיום כתמונה (אם יש טקסט סיום)
+    # ➕ יצירת טקסט סיום כתמונה
     if ending_text:
         font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
         font = ImageFont.truetype(font_path, 60)
@@ -38,7 +41,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         ending_path = os.path.join(output_dir, "ending.png")
         img.save(ending_path)
         with open(concat_file, "a") as f:
-            f.write(f"file '{os.path.abspath(ending_path)}'\n")
+            f.write(f"file '{ending_path}'\n")
             f.write("duration 2\n")
 
     # 🖼️ יצירת וידאו מהתמונות
@@ -50,7 +53,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         .run(overwrite_output=True)
     )
 
-      # 🔊 הוספת מוזיקה (אם קיימת)
+    # 🔊 הוספת מוזיקה (אם קיימת)
     video_with_audio = os.path.join(output_dir, f"output_{uuid.uuid4().hex}.mp4")
     if music_path:
         video_input = ffmpeg.input(temp_video)
@@ -63,7 +66,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         os.remove(temp_video)
     else:
         os.rename(temp_video, video_with_audio)
-        
+
     # 🏷️ הוספת לוגו (אם קיים)
     if logo_path:
         final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
