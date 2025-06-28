@@ -50,20 +50,20 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         .run(overwrite_output=True)
     )
 
-    # 🔊 הוספת מוזיקה (אם קיימת)
+      # 🔊 הוספת מוזיקה (אם קיימת)
     video_with_audio = os.path.join(output_dir, f"output_{uuid.uuid4().hex}.mp4")
     if music_path:
+        video_input = ffmpeg.input(temp_video)
+        audio_input = ffmpeg.input(music_path)
         (
             ffmpeg
-            .input(temp_video)
-            .input(music_path)
-            .output(video_with_audio, vcodec="copy", acodec="aac", shortest=None)
+            .output(video_input, audio_input, video_with_audio, vcodec="copy", acodec="aac", shortest=None)
             .run(overwrite_output=True)
         )
         os.remove(temp_video)
     else:
         os.rename(temp_video, video_with_audio)
-
+        
     # 🏷️ הוספת לוגו (אם קיים)
     if logo_path:
         final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
