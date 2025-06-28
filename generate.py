@@ -24,11 +24,12 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         resized_images.append(new_path)
 
     # 🧾 יצירת קובץ inputs.txt
-    concat_file = os.path.join(output_dir, "inputs.txt")
-    with open(concat_file, "w") as f:
-        for img in resized_images:
-            f.write(f"file '{img}'\n")
-            f.write("duration 2\n")
+concat_file = os.path.join(output_dir, "inputs.txt")
+with open(concat_file, "w") as f:
+    for img in resized_images:
+        filename = os.path.basename(img)  # שומר רק את שם הקובץ בלי התיקייה
+        f.write(f"file '{os.path.join(output_dir, filename)}'\n")
+        f.write("duration 2\n")
 
     # ➕ יצירת טקסט סיום כתמונה
     if ending_text:
