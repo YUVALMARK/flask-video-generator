@@ -51,4 +51,35 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
     (
         ffmpeg
         .input(concat_file, format="concat", safe=0)
-        .output(temp_video, vcodec="libx264", r=24, pix_fm
+        .output(temp_video, vcodec="libx264", r=24, pix_fmt="yuv420p")
+        .run(overwrite_output=True)
+    )
+
+    # 🔊 הוספת מוזיקה (אם קיימת)
+    video_with_audio = os.path.join(output_dir, f"output_{uuid.uuid4().hex}.mp4")
+    if music_path:
+        (
+            ffmpeg
+            .input(temp_video)
+            .input(music_path)
+            .output(video_with_audio, vcodec="copy", acodec="aac", shortest=None)
+            .run(overwrite_output=True)
+        )
+        os.remove(temp_video)
+    else:
+        os.rename(temp_video, video_with_audio)
+
+    # 🏷️ הוספת לוגו (אם קיים)
+    if logo_path:
+        final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
+        (
+            ffmpeg
+            .input(video_with_audio)
+            .overlay(ffmpeg.input(logo_path), x='(main_w-overlay_w)/2', y=20, enable='between(t,0,2)')
+            .output(final_video)
+            .run(overwrite_output=True)
+        )
+        os.remove(video_with_audio)
+        return final_video
+
+    return video_with_audio
