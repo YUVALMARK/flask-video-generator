@@ -24,12 +24,12 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
         resized_images.append(new_path)
 
     # 🧾 יצירת קובץ inputs.txt
-concat_file = os.path.join(output_dir, "inputs.txt")
-with open(concat_file, "w") as f:
-    for img in resized_images:
-        filename = os.path.basename(img)  # שומר רק את שם הקובץ בלי התיקייה
-        f.write(f"file '{os.path.join(output_dir, filename)}'\n")
-        f.write("duration 2\n")
+    concat_file = os.path.join(output_dir, "inputs.txt")
+    with open(concat_file, "w") as f:
+        for img in resized_images:
+            filename = os.path.basename(img)
+            f.write(f"file '{os.path.join(output_dir, filename)}'\n")
+            f.write("duration 2\n")
 
     # ➕ יצירת טקסט סיום כתמונה
     if ending_text:
@@ -67,7 +67,7 @@ with open(concat_file, "w") as f:
         os.rename(temp_video, video_with_audio)
 
     # 🏷️ הוספת לוגו (אם קיים)
-       if logo_path:
+    if logo_path:
         final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
         (
             ffmpeg
@@ -77,6 +77,6 @@ with open(concat_file, "w") as f:
             .run(overwrite_output=True)
         )
         os.remove(video_with_audio)
-        return final_video  # ✅ עכשיו בתוך הפונקציה
+        return final_video
 
-    return video_with_audio  # ✅ תחזור לסרטון הרגיל אם אין לוגו
+    return video_with_audio
