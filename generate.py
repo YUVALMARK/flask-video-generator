@@ -27,10 +27,10 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
     # 🧾 יצירת קובץ inputs.txt
     concat_file = os.path.join(output_dir, "inputs.txt")
     with open(concat_file, "w") as f:
-        for filename in resized_images:
-            full_path = os.path.join(output_dir, filename)
-            f.write(f"file '{full_path}'\n")
-            f.write("duration 2\n")
+    for filename in resized_images:
+        full_path = os.path.abspath(os.path.join(output_dir, filename))
+        f.write(f"file '{full_path}'\n")
+        f.write("duration 2\n")
 
     # ➕ יצירת טקסט סיום כתמונה
     if ending_text:
