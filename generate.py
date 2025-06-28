@@ -1,76 +1,81 @@
+import ffmpeg
 import os
 import uuid
-import ffmpeg
-from PIL import Image, ImageFilter
-import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
-def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
-    output_filename = f"output_{uuid.uuid4().hex}.mp4"
-    output_path = os.path.join('static', 'uploads', output_filename)
+def generate_video(images, music_path=None, logo_path=None, ending_text=None, size="square"):
+    output_dir = "static/uploads"
+    os.makedirs(output_dir, exist_ok=True)
 
-    width, height = {
-        'landscape': (1280, 720),
-        'square': (720, 720),
-        'story': (720, 1280)
-    }.get(size, (720, 720))
+    # 🧱 הגדרות גודל
+    sizes = {
+        "square": (720, 720),
+        "story": (720, 1280),
+        "landscape": (1280, 720)
+    }
+    width, height = sizes.get(size, (720, 720))
 
-    image_clips = []
-    for i, img_path in enumerate(images):
-        # רקע מטושטש
-        img = Image.open(img_path)
-        blurred = img.filter(ImageFilter.GaussianBlur(10)).resize((width, height))
-        blurred_path = f"{img_path}_blurred_{i}.png"
-        blurred.save(blurred_path)
+    resized_images = []
+    for i, image_path in enumerate(images):
+        img = Image.open(image_path).convert("RGB")
+        img = img.resize((width, height))
+        new_path = os.path.join(output_dir, f"frame_{i}.png")
+        img.save(new_path)
+        resized_images.append(new_path)
 
-        # התמונה המקורית ממוזערת (מרכז)
-        overlay = img.copy()
-        overlay.thumbnail((int(width * 0.8), int(height * 0.8)))
-        overlay_path = f"{img_path}_overlay_{i}.png"
-        overlay_bg = Image.new("RGB", (width, height))
-        offset = ((width - overlay.width) // 2, (height - overlay.height) // 2)
-        overlay_bg.paste(overlay, offset)
-        overlay_bg.save(overlay_path)
-
-        # שמירת תמונה אחת סופית לסרטון
-        final_img_path = f"{img_path}_final_{i}.png"
-        base = Image.open(blurred_path)
-        top = Image.open(overlay_path)
-        combined = Image.blend(base, top, alpha=0.9)
-        combined.save(final_img_path)
-        image_clips.append(final_img_path)
-
-    # יצירת קובץ טקסט עבור התמונות
-    with open('inputs.txt', 'w') as f:
-        for img in image_clips:
+    # 🧾 יצירת קובץ inputs.txt
+    concat_file = os.path.join(output_dir, "inputs.txt")
+    with open(concat_file, "w") as f:
+        for img in resized_images:
             f.write(f"file '{img}'\n")
             f.write("duration 2\n")
 
-    # פקודת ffmpeg ליצירת הסרטון
-    ffmpeg.input('inputs.txt', format='concat', safe=0) \
-        .output(output_path, vf=f"scale={width}:{height},fps=24", vcodec='libx264', pix_fmt='yuv420p') \
+    # ➕ יצירת טקסט סיום כתמונה
+    if ending_text:
+        font = ImageFont.truetype("arial.ttf", 60)
+        img = Image.new('RGB', (width, height), color="white")
+        draw = ImageDraw.Draw(img)
+        w, h = draw.textsize(ending_text, font=font)
+        draw.text(((width - w) / 2, (height - h) / 2), ending_text, fill="black", font=font)
+        ending_path = os.path.join(output_dir, "ending.png")
+        img.save(ending_path)
+        with open(concat_file, "a") as f:
+            f.write(f"file '{ending_path}'\n")
+            f.write("duration 2\n")
+
+    # 🖼️ יצירת וידאו מהתמונות
+    temp_video = os.path.join(output_dir, "temp_video.mp4")
+    (
+        ffmpeg
+        .input(concat_file, format="concat", safe=0)
+        .output(temp_video, vcodec="libx264", r=24, pix_fmt="yuv420p")
         .run(overwrite_output=True)
+    )
 
-    # הוספת מוזיקה
+    # 🔊 הוספת מוזיקה (אם קיימת)
+    video_with_audio = os.path.join(output_dir, f"output_{uuid.uuid4().hex}.mp4")
     if music_path:
-        temp_with_audio = output_path.replace(".mp4", "_with_audio.mp4")
-        ffmpeg.input(output_path).output(music_path).output(temp_with_audio, vcodec='copy', acodec='aac', shortest=None).run(overwrite_output=True)
-        os.replace(temp_with_audio, output_path)
+        (
+            ffmpeg
+            .input(temp_video)
+            .input(music_path)
+            .output(video_with_audio, vcodec="copy", acodec="aac", shortest=None)
+            .run(overwrite_output=True)
+        )
+    else:
+        os.rename(temp_video, video_with_audio)
 
-    # הוספת לוגו וטקסט – אופציונלי
-    if logo_path or ending_text:
-        filters = []
-        inputs = [ffmpeg.input(output_path)]
+    # 🏷️ הוספת לוגו (אם קיים)
+    if logo_path:
+        final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
+        (
+            ffmpeg
+            .input(video_with_audio)
+            .overlay(ffmpeg.input(logo_path), x='(main_w-overlay_w)/2', y=20, enable='between(t,0,2)')
+            .output(final_video)
+            .run(overwrite_output=True)
+        )
+        os.remove(video_with_audio)
+        return final_video
 
-        if logo_path:
-            inputs.append(ffmpeg.input(logo_path))
-            filters.append(f"[1:v]scale=100:-1[logo];[0:v][logo]overlay=(main_w-overlay_w)/2:20")
-
-        if ending_text:
-            filters.append(f"drawtext=text='{ending_text}':fontcolor=white:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2:enable='between(t,{len(images)*2},{len(images)*2+2})'")
-
-        filtered = ffmpeg.filter_multi_output(inputs, filters) if filters else inputs[0]
-        temp_final = output_path.replace(".mp4", "_final.mp4")
-        ffmpeg.output(filtered, temp_final).run(overwrite_output=True)
-        os.replace(temp_final, output_path)
-
-    return output_path
+    return video_with_audio
