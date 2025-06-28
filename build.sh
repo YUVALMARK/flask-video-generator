@@ -7,6 +7,6 @@ pip install --upgrade pip
 # התקנת כל הספריות מהקובץ
 pip install -r requirements.txt
 
-# בדיקה שההתקנה של moviepy הצליחה
-echo "🔍 Checking moviepy import..."
-python -c "from moviepy.editor import *"
+# בדיקה שהכול תקין (לפי הספרייה שבחרת: ffmpeg-python)
+echo "🔍 Checking ffmpeg-python import..."
+python -c "import ffmpeg; print('✅ ffmpeg-python imported successfully')"
