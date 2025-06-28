@@ -1,6 +1,7 @@
 import os
 import uuid
 from PIL import Image, ImageFilter
+Image.ANTIALIAS = Image.Resampling.LANCZOS  # תיקון תאימות לגרסאות חדשות
 from moviepy.editor import (
     ImageClip, ColorClip, TextClip, CompositeVideoClip,
     concatenate_videoclips, AudioFileClip
