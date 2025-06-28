@@ -1,54 +1,76 @@
 import os
 import uuid
-from PIL import Image  # ✅ ייבוא נכון
-Image.ANTIALIAS = Image.Resampling.LANCZOS  # ✅ תיקון לבעיה
-
-from moviepy.editor import (
-    ImageClip, ColorClip, TextClip, CompositeVideoClip, concatenate_videoclips, AudioFileClip
-)
+import ffmpeg
+from PIL import Image, ImageFilter
+import numpy as np
 
 def generate_video(images, music_path=None, logo_path=None, ending_text=None, size='square'):
     output_filename = f"output_{uuid.uuid4().hex}.mp4"
     output_path = os.path.join('static', 'uploads', output_filename)
 
-    final_clips = []
-    for img in images:
-        base_clip = ImageClip(img).resize(height=1080 if size == 'story' else 720)
-        blurred_bg = (base_clip
-                      .resize(1.2)
-                      .fx(blur, 10)
-                      .set_duration(2))
-        matte_layer = ColorClip(blurred_bg.size, color=(0, 0, 0)).set_opacity(0.2).set_duration(2)
+    width, height = {
+        'landscape': (1280, 720),
+        'square': (720, 720),
+        'story': (720, 1280)
+    }.get(size, (720, 720))
 
-        focused = (base_clip
-                   .set_duration(2)
-                   .margin(20, color=(0, 0, 0))
-                   .set_position("center"))
+    image_clips = []
+    for i, img_path in enumerate(images):
+        # רקע מטושטש
+        img = Image.open(img_path)
+        blurred = img.filter(ImageFilter.GaussianBlur(10)).resize((width, height))
+        blurred_path = f"{img_path}_blurred_{i}.png"
+        blurred.save(blurred_path)
 
-        composed = CompositeVideoClip([blurred_bg, matte_layer, focused])
-        composed = composed.fadein(0.5).fadeout(0.5)
-        final_clips.append(composed)
+        # התמונה המקורית ממוזערת (מרכז)
+        overlay = img.copy()
+        overlay.thumbnail((int(width * 0.8), int(height * 0.8)))
+        overlay_path = f"{img_path}_overlay_{i}.png"
+        overlay_bg = Image.new("RGB", (width, height))
+        offset = ((width - overlay.width) // 2, (height - overlay.height) // 2)
+        overlay_bg.paste(overlay, offset)
+        overlay_bg.save(overlay_path)
 
-    video = concatenate_videoclips(final_clips, method="compose", padding=-0.5)
+        # שמירת תמונה אחת סופית לסרטון
+        final_img_path = f"{img_path}_final_{i}.png"
+        base = Image.open(blurred_path)
+        top = Image.open(overlay_path)
+        combined = Image.blend(base, top, alpha=0.9)
+        combined.save(final_img_path)
+        image_clips.append(final_img_path)
 
+    # יצירת קובץ טקסט עבור התמונות
+    with open('inputs.txt', 'w') as f:
+        for img in image_clips:
+            f.write(f"file '{img}'\n")
+            f.write("duration 2\n")
+
+    # פקודת ffmpeg ליצירת הסרטון
+    ffmpeg.input('inputs.txt', format='concat', safe=0) \
+        .output(output_path, vf=f"scale={width}:{height},fps=24", vcodec='libx264', pix_fmt='yuv420p') \
+        .run(overwrite_output=True)
+
+    # הוספת מוזיקה
     if music_path:
-        audio = AudioFileClip(music_path).subclip(0, video.duration)
-        video = video.set_audio(audio)
+        temp_with_audio = output_path.replace(".mp4", "_with_audio.mp4")
+        ffmpeg.input(output_path).output(music_path).output(temp_with_audio, vcodec='copy', acodec='aac', shortest=None).run(overwrite_output=True)
+        os.replace(temp_with_audio, output_path)
 
-    if logo_path:
-        logo = (ImageClip(logo_path)
-                .set_duration(video.duration)
-                .resize(height=100)
-                .set_position(("center", "top")))
-        video = CompositeVideoClip([video, logo])
+    # הוספת לוגו וטקסט – אופציונלי
+    if logo_path or ending_text:
+        filters = []
+        inputs = [ffmpeg.input(output_path)]
 
-    if ending_text:
-        txt_clip = (TextClip(ending_text, fontsize=70, color='white', font='Arial-Bold')
-                    .set_duration(2)
-                    .fadein(0.5)
-                    .set_position('center')
-                    .set_start(video.duration))
-        video = concatenate_videoclips([video, txt_clip])
+        if logo_path:
+            inputs.append(ffmpeg.input(logo_path))
+            filters.append(f"[1:v]scale=100:-1[logo];[0:v][logo]overlay=(main_w-overlay_w)/2:20")
 
-    video.write_videofile(output_path, fps=24)
+        if ending_text:
+            filters.append(f"drawtext=text='{ending_text}':fontcolor=white:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2:enable='between(t,{len(images)*2},{len(images)*2+2})'")
+
+        filtered = ffmpeg.filter_multi_output(inputs, filters) if filters else inputs[0]
+        temp_final = output_path.replace(".mp4", "_final.mp4")
+        ffmpeg.output(filtered, temp_final).run(overwrite_output=True)
+        os.replace(temp_final, output_path)
+
     return output_path
