@@ -32,7 +32,7 @@ def generate_video(images, music_path=None, logo_path=None, ending_text=None, si
 
     # ➕ יצירת טקסט סיום כתמונה
     if ending_text:
-        font = ImageFont.truetype("arial.ttf", 60)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 60)
         img = Image.new('RGB', (width, height), color="white")
         draw = ImageDraw.Draw(img)
         w, h = draw.textsize(ending_text, font=font)
