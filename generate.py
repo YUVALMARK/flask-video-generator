@@ -67,7 +67,7 @@ with open(concat_file, "w") as f:
         os.rename(temp_video, video_with_audio)
 
     # 🏷️ הוספת לוגו (אם קיים)
-    if logo_path:
+       if logo_path:
         final_video = os.path.join(output_dir, f"final_{uuid.uuid4().hex}.mp4")
         (
             ffmpeg
@@ -77,6 +77,6 @@ with open(concat_file, "w") as f:
             .run(overwrite_output=True)
         )
         os.remove(video_with_audio)
-        return final_video
+        return final_video  # ✅ עכשיו בתוך הפונקציה
 
-    return video_with_audio
+    return video_with_audio  # ✅ תחזור לסרטון הרגיל אם אין לוגו
